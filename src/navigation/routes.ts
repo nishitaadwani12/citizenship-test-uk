@@ -5,4 +5,7 @@ export type MainRoute =
   | 'MockExam'
   | 'Handbook'
   | 'Paywall'
-  | 'Settings';
+  | 'Settings'
+  | 'Privacy'
+  | 'Terms'
+  | 'About';

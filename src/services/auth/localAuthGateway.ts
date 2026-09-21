@@ -96,6 +96,16 @@ export class LocalAuthGateway implements AuthGateway {
     await this.store.removeItem(SESSION_KEY);
   }
 
+  async deleteAccount(): Promise<void> {
+    const email = await this.store.getItem(SESSION_KEY);
+    if (email) {
+      const users = await this.readUsers();
+      delete users[email];
+      await this.writeUsers(users);
+    }
+    await this.store.removeItem(SESSION_KEY);
+  }
+
   async getCurrentUser(): Promise<AuthUser | null> {
     const email = await this.store.getItem(SESSION_KEY);
     return email ? emailUser(email) : null;

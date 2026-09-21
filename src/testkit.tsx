@@ -20,9 +20,9 @@ const fakeHasher: Hasher = {
 export function makeFakeBackend(overrides: Partial<IapBackend> = {}): IapBackend {
   return {
     init: jest.fn().mockResolvedValue(undefined),
-    getProducts: jest.fn().mockResolvedValue([]),
-    purchase: jest.fn().mockResolvedValue(undefined),
-    getPurchasedProductIds: jest.fn().mockResolvedValue([]),
+    getSubscriptions: jest.fn().mockResolvedValue([]),
+    purchaseSubscription: jest.fn().mockResolvedValue(undefined),
+    getOwnedProductIds: jest.fn().mockResolvedValue([]),
     end: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   };
@@ -37,6 +37,7 @@ export function makeFakeAuthGateway(overrides: Partial<AuthGateway> = {}): AuthG
   return {
     getCurrentUser: jest.fn().mockResolvedValue(null),
     signOut: jest.fn().mockResolvedValue(undefined),
+    deleteAccount: jest.fn().mockResolvedValue(undefined),
     signUpWithEmail: jest.fn(async (email: string) => userFor(email, 'email')),
     signInWithEmail: jest.fn(async (email: string) => userFor(email, 'email')),
     signInWithGoogle: jest.fn(async () => userFor('g@x.com', 'google')),

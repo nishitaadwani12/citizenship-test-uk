@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useApp } from '../app/AppContext';
 import { colors, styles } from '../app/theme';
+import { DISCLAIMER, PRIVACY_POLICY, TERMS_OF_SERVICE } from '../content/legal';
 import { AuthScreen } from '../screens/AuthScreen';
 import { HandbookScreen } from '../screens/HandbookScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { LegalScreen } from '../screens/LegalScreen';
 import { MockExamScreen } from '../screens/MockExamScreen';
 import { PaywallScreen } from '../screens/PaywallScreen';
 import { PracticeScreen } from '../screens/PracticeScreen';
@@ -40,6 +42,12 @@ export function RootNavigator(): React.JSX.Element {
       return <PaywallScreen onNavigate={setRoute} />;
     case 'Settings':
       return <SettingsScreen onNavigate={setRoute} />;
+    case 'Privacy':
+      return <LegalScreen document={PRIVACY_POLICY} onNavigate={setRoute} />;
+    case 'Terms':
+      return <LegalScreen document={TERMS_OF_SERVICE} onNavigate={setRoute} />;
+    case 'About':
+      return <LegalScreen document={DISCLAIMER} onNavigate={setRoute} />;
     default:
       return <HomeScreen onNavigate={setRoute} />;
   }

@@ -104,6 +104,13 @@ export function buildFirebaseDeps(config: FirebaseConfig): FirebaseAuthDeps {
       const { signOut } = require('firebase/auth');
       await signOut(auth());
     },
+    deleteAccount: async () => {
+      const { deleteUser } = require('firebase/auth');
+      const current = auth().currentUser;
+      if (current) {
+        await deleteUser(current);
+      }
+    },
     getCurrentUser: async () => {
       const current = auth().currentUser;
       return current ? mapUser(current) : null;

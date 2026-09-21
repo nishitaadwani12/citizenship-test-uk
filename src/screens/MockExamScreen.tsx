@@ -4,30 +4,28 @@ import { useApp } from '../app/AppContext';
 import { styles } from '../app/theme';
 import { QuizRunner } from '../components/QuizRunner';
 import { ResultsView } from '../components/ResultsView';
+import { accessibleQuestions } from '../core/access';
 import { generateMockExam, MOCK_EXAM_SIZE } from '../core/mockExam';
 import { UK_QUESTIONS } from '../core/questionBank';
 import { ScoreResult } from '../core/types';
 import { MainRoute } from '../navigation/routes';
 
-/** Free users get a short taster exam; premium unlocks the full 24-question exam. */
-export const FREE_EXAM_SIZE = 5;
-
 export interface MockExamScreenProps {
   onNavigate(route: MainRoute): void;
 }
 
-/** Timed-format mock exam. Records the result into progress on completion. */
+/** Official-format mock exam (24 questions). Free users are examined on the
+ *  free-tier pool; premium draws from the full bank. Records the result. */
 export function MockExamScreen({ onNavigate }: MockExamScreenProps): React.JSX.Element {
   const { isPremium, services } = useApp();
   const [result, setResult] = useState<ScoreResult | null>(null);
   const [runKey, setRunKey] = useState(0);
 
-  const size = isPremium ? MOCK_EXAM_SIZE : FREE_EXAM_SIZE;
-  const questions = useMemo(
-    () => generateMockExam(UK_QUESTIONS, size),
+  const questions = useMemo(() => {
+    const pool = accessibleQuestions(UK_QUESTIONS, isPremium);
+    return generateMockExam(pool, MOCK_EXAM_SIZE);
     // Regenerate whenever a new run starts or access level changes.
-    [size, runKey],
-  );
+  }, [isPremium, runKey]);
 
   async function handleFinish(r: ScoreResult): Promise<void> {
     await services.progress.record(r);
@@ -52,7 +50,7 @@ export function MockExamScreen({ onNavigate }: MockExamScreenProps): React.JSX.E
       {isPremium ? null : (
         <TouchableOpacity testID="exam-upsell" onPress={() => onNavigate('Paywall')}>
           <Text style={styles.label}>
-            Free taster: {FREE_EXAM_SIZE} questions. Unlock the full {MOCK_EXAM_SIZE}-question exam →
+            Go Premium for more questions across all categories →
           </Text>
         </TouchableOpacity>
       )}

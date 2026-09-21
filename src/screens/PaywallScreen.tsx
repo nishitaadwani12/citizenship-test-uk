@@ -2,20 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useApp } from '../app/AppContext';
 import { styles } from '../app/theme';
+import { UK_QUESTIONS } from '../core/questionBank';
+import { tierCounts } from '../core/access';
 import { IapProduct } from '../services/iapBackend';
+import { SUBSCRIPTION_PLANS } from '../services/plans';
 import { MainRoute } from '../navigation/routes';
 
 export interface PaywallScreenProps {
   onNavigate(route: MainRoute): void;
 }
 
-const BENEFITS = [
-  'All practice questions',
-  'Full 24-question mock exams',
-  'No adverts',
-];
-
-/** Presents the lifetime unlock and restore flow using store in-app purchases. */
+/** Presents the subscription plans and restore flow using store subscriptions.
+ *  Shows price, billing period, auto-renew terms, and links to Terms/Privacy as
+ *  required by the app stores. */
 export function PaywallScreen({ onNavigate }: PaywallScreenProps): React.JSX.Element {
   const { services, refreshPremium } = useApp();
   const [products, setProducts] = useState<IapProduct[]>([]);
@@ -27,7 +26,7 @@ export function PaywallScreen({ onNavigate }: PaywallScreenProps): React.JSX.Ele
     (async () => {
       let apply: () => void;
       try {
-        const loaded = await services.iap.loadProducts();
+        const loaded = await services.iap.loadPlans();
         apply = () => setProducts(loaded);
       } catch {
         apply = () => setMessage('Store unavailable. Please try again later.');
@@ -41,13 +40,17 @@ export function PaywallScreen({ onNavigate }: PaywallScreenProps): React.JSX.Ele
     };
   }, [services]);
 
-  const price = products[0]?.price ?? '£8.99';
+  const counts = tierCounts(UK_QUESTIONS);
 
-  async function buy(): Promise<void> {
+  function priceFor(productId: string, fallback: string): string {
+    return products.find((p) => p.productId === productId)?.price ?? fallback;
+  }
+
+  async function subscribe(productId: string): Promise<void> {
     setBusy(true);
     setMessage('');
     try {
-      await services.iap.buyLifetime();
+      await services.iap.subscribe(productId);
       await refreshPremium();
       onNavigate('Home');
     } catch {
@@ -66,7 +69,7 @@ export function PaywallScreen({ onNavigate }: PaywallScreenProps): React.JSX.Ele
         await refreshPremium();
         onNavigate('Home');
       } else {
-        setMessage('No previous purchase found.');
+        setMessage('No active subscription found.');
       }
     } catch {
       setMessage('Restore failed. Please try again.');
@@ -77,30 +80,46 @@ export function PaywallScreen({ onNavigate }: PaywallScreenProps): React.JSX.Ele
 
   return (
     <ScrollView style={styles.screen}>
-      <Text style={styles.title}>Unlock full access</Text>
-      <Text style={styles.subtitle} testID="paywall-price">
-        One-time payment of {price}
+      <Text style={styles.title}>Go Premium</Text>
+      <Text style={styles.subtitle} testID="paywall-benefits">
+        Unlock all {counts.free + counts.premium} questions ({counts.premium} premium), full mock
+        exams and ad-free study.
       </Text>
-      {BENEFITS.map((benefit) => (
-        <Text key={benefit} style={styles.optionText}>
-          • {benefit}
-        </Text>
-      ))}
+
       {message ? (
         <Text style={styles.error} testID="paywall-message">
           {message}
         </Text>
       ) : null}
-      <TouchableOpacity
-        testID="buy-button"
-        style={[styles.button, busy ? styles.buttonDisabled : null]}
-        disabled={busy}
-        onPress={buy}
-      >
-        <Text style={styles.buttonText}>Buy lifetime unlock</Text>
-      </TouchableOpacity>
+
+      {SUBSCRIPTION_PLANS.map((plan) => (
+        <TouchableOpacity
+          key={plan.productId}
+          testID={`plan-${plan.productId}`}
+          style={[styles.button, busy ? styles.buttonDisabled : null]}
+          disabled={busy}
+          onPress={() => subscribe(plan.productId)}
+        >
+          <Text style={styles.buttonText}>
+            {plan.title} — {priceFor(plan.productId, plan.fallbackPrice)} {plan.period}
+            {plan.note ? ` · ${plan.note}` : ''}
+          </Text>
+        </TouchableOpacity>
+      ))}
+
+      <Text style={styles.label} testID="paywall-terms">
+        Subscriptions renew automatically until cancelled. Cancel anytime in your store account at
+        least 24 hours before renewal. Payment is charged to your Apple or Google account.
+      </Text>
+
       <TouchableOpacity testID="restore-button" disabled={busy} onPress={restore}>
         <Text style={styles.secondaryText}>Restore purchase</Text>
+      </TouchableOpacity>
+      <TouchableOpacity testID="paywall-terms-link" onPress={() => onNavigate('Terms')}>
+        <Text style={styles.secondaryText}>Terms of Service</Text>
+      </TouchableOpacity>
+      <TouchableOpacity testID="paywall-privacy-link" onPress={() => onNavigate('Privacy')}>
+        <Text style={styles.secondaryText}>Privacy Policy</Text>
       </TouchableOpacity>
       <TouchableOpacity testID="paywall-home" onPress={() => onNavigate('Home')}>
         <Text style={styles.secondaryText}>Not now</Text>

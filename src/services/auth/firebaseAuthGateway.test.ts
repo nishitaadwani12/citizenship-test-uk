@@ -16,6 +16,7 @@ function makeDeps(overrides: Partial<FirebaseAuthDeps> = {}): FirebaseAuthDeps {
       confirm: jest.fn(async () => raw(null, 'p-uid', '+447700900123')),
     })),
     signOut: jest.fn(async () => undefined),
+    deleteAccount: jest.fn(async () => undefined),
     getCurrentUser: jest.fn(async () => null),
     ...overrides,
   };
@@ -97,5 +98,17 @@ describe('FirebaseAuthGateway', () => {
     expect(await gateway.getCurrentUser()).toMatchObject({ provider: 'phone' });
     await gateway.signOut();
     expect(deps.signOut).toHaveBeenCalled();
+  });
+
+  it('deletes the account, mapping failures to a friendly error', async () => {
+    const deps = makeDeps();
+    const gateway = new FirebaseAuthGateway(deps);
+    await gateway.deleteAccount();
+    expect(deps.deleteAccount).toHaveBeenCalled();
+
+    const failing = new FirebaseAuthGateway(
+      makeDeps({ deleteAccount: jest.fn().mockRejectedValue(new Error('x')) }),
+    );
+    await expect(failing.deleteAccount()).rejects.toThrow(/Could not delete your account/);
   });
 });

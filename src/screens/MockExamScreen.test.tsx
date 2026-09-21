@@ -1,7 +1,8 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
+import { MOCK_EXAM_SIZE } from '../core/mockExam';
 import { makeServices, renderWithApp } from '../testkit';
-import { FREE_EXAM_SIZE, MockExamScreen } from './MockExamScreen';
+import { MockExamScreen } from './MockExamScreen';
 
 function answerExam(count: number): void {
   for (let i = 0; i < count; i += 1) {
@@ -11,7 +12,7 @@ function answerExam(count: number): void {
 }
 
 describe('MockExamScreen', () => {
-  it('shows the free upsell and navigates to the paywall', () => {
+  it('shows the premium upsell and navigates to the paywall', () => {
     const onNavigate = jest.fn();
     renderWithApp(<MockExamScreen onNavigate={onNavigate} />, makeServices());
     fireEvent.press(screen.getByTestId('exam-upsell'));
@@ -23,7 +24,7 @@ describe('MockExamScreen', () => {
     const onNavigate = jest.fn();
     renderWithApp(<MockExamScreen onNavigate={onNavigate} />, services);
 
-    answerExam(FREE_EXAM_SIZE);
+    answerExam(MOCK_EXAM_SIZE);
     await waitFor(() => expect(screen.getByTestId('results-verdict')).toBeTruthy());
     expect((await services.progress.get()).attempts).toBe(1);
 

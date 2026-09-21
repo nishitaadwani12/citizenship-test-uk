@@ -59,6 +59,22 @@ describe('LocalAuthGateway email', () => {
     await auth.signOut();
     expect(await auth.getCurrentUser()).toBeNull();
   });
+
+  it('deletes the signed-in account so it can no longer log in', async () => {
+    const store = createMemoryStore();
+    await make(store).signUpWithEmail('a@b.com', 'secret1');
+    const auth = make(store);
+    await auth.getCurrentUser(); // session exists from sign-up
+    await make(store).deleteAccount();
+    expect(await make(store).getCurrentUser()).toBeNull();
+    await expect(make(store).signInWithEmail('a@b.com', 'secret1')).rejects.toThrow(/No account/);
+  });
+
+  it('deleting with no active session is a no-op', async () => {
+    const auth = make();
+    await auth.deleteAccount();
+    expect(await auth.getCurrentUser()).toBeNull();
+  });
 });
 
 describe('LocalAuthGateway social/phone', () => {

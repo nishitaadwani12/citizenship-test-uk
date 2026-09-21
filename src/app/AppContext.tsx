@@ -15,6 +15,7 @@ export interface AppContextValue {
   startPhoneSignIn(phoneNumber: string): Promise<PhoneVerification>;
   confirmPhone(verification: PhoneVerification, code: string): Promise<void>;
   logout(): Promise<void>;
+  deleteAccount(): Promise<void>;
   refreshPremium(): Promise<void>;
 }
 
@@ -101,6 +102,11 @@ export function AppProvider({
     setUser(null);
   }, [resolved]);
 
+  const deleteAccount = useCallback(async () => {
+    await resolved.auth.deleteAccount();
+    setUser(null);
+  }, [resolved]);
+
   const value: AppContextValue = {
     loading,
     user,
@@ -113,6 +119,7 @@ export function AppProvider({
     startPhoneSignIn,
     confirmPhone,
     logout,
+    deleteAccount,
     refreshPremium,
   };
 

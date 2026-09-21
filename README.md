@@ -12,15 +12,22 @@ citizenship-test portfolio; the architecture is designed to be re-used per count
     with no backend. This is the default until Firebase is configured.
   - `FirebaseAuthGateway` — email, phone, Google and Apple via Firebase. Activates
     automatically when Firebase env vars are set (see "Enabling Firebase auth").
-- **Practice mode** — instant feedback; free users get the first 10 questions,
-  premium unlocks the full bank.
-- **Mock exam** — official 24-question / 18-to-pass format; free taster is 5
-  questions, premium unlocks the full exam. Results feed progress tracking.
+- **Free vs premium questions** — questions carry a `tier` (`free` | `premium`)
+  and a category. Free users study the free-tier pool; premium unlocks the full
+  bank. (Ship target: ~200 free + a premium pool — see content note below.)
+- **Practice mode** — instant feedback over the accessible question pool.
+- **Mock exam** — official 24-question / 18-to-pass format; free users are
+  examined on the free pool, premium on the full bank. Results feed progress.
 - **Study handbook** — summarised official material (free).
-- **Premium unlock via store in-app purchase** — one-time lifetime unlock using
-  Apple StoreKit / Google Play Billing (`react-native-iap`) + restore. Not
-  Razorpay: store policy (Apple 3.1.1 / Play Billing) requires native IAP for
-  digital unlocks, and Razorpay is India-settlement only.
+- **Premium via auto-renewing subscription** — weekly (₹150 anchor) and a cheaper
+  3-monthly (₹1,500 anchor) plan, using Apple StoreKit / Google Play Billing
+  (`react-native-iap`) + restore. Prices are per-storefront (₹ reaches Indian
+  users; equivalent tiers apply elsewhere). Not Razorpay: store policy (Apple
+  3.1.1 / Play Billing) requires native IAP for digital unlocks.
+- **Legal & compliance** — in-app Privacy Policy, Terms of Service, and an
+  About/Disclaimer (unofficial-app notice); a paywall with auto-renew terms +
+  Terms/Privacy links (Apple 3.1.2); and **account deletion** in Settings
+  (required by both stores). Host `PRIVACY.md` for the store listing URL.
 
 ## Project structure
 
@@ -70,7 +77,7 @@ Firebase gateway; otherwise it stays on the local email/password gateway.
 
 ## Testing & coverage
 
-- **148 unit tests, 100% coverage** (statements / branches / functions / lines),
+- **161 unit tests, 100% coverage** (statements / branches / functions / lines),
   enforced via Jest `coverageThreshold`.
 - Excluded from coverage: type-only files (`types.ts`, `gateway.ts`),
   `src/navigation/**`, `src/testkit.tsx`, and `src/services/auth/authWiring.ts`

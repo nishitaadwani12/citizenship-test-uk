@@ -1,7 +1,11 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
+import { accessibleQuestions } from '../core/access';
+import { UK_QUESTIONS } from '../core/questionBank';
 import { makeServices, renderWithApp } from '../testkit';
-import { FREE_PRACTICE_LIMIT, PracticeScreen } from './PracticeScreen';
+import { PracticeScreen } from './PracticeScreen';
+
+const FREE_COUNT = accessibleQuestions(UK_QUESTIONS, false).length;
 
 function answerAll(count: number): void {
   for (let i = 0; i < count; i += 1) {
@@ -22,7 +26,7 @@ describe('PracticeScreen', () => {
   it('completes a run, shows results, and retries', () => {
     const onNavigate = jest.fn();
     renderWithApp(<PracticeScreen onNavigate={onNavigate} />, makeServices());
-    answerAll(FREE_PRACTICE_LIMIT);
+    answerAll(FREE_COUNT);
     expect(screen.getByTestId('results-verdict')).toBeTruthy();
 
     fireEvent.press(screen.getByTestId('home-button'));

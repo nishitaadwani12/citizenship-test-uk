@@ -1,14 +1,15 @@
 import { EntitlementService } from './entitlementService';
 import { IapBackend } from './iapBackend';
-import { IapService, LIFETIME_PRODUCT_ID } from './iapService';
+import { IapService } from './iapService';
+import { ALL_PLAN_IDS, WEEKLY_PLAN_ID } from './plans';
 import { createMemoryStore } from './storage';
 
 function makeBackend(overrides: Partial<IapBackend> = {}): IapBackend {
   return {
     init: jest.fn().mockResolvedValue(undefined),
-    getProducts: jest.fn().mockResolvedValue([]),
-    purchase: jest.fn().mockResolvedValue(undefined),
-    getPurchasedProductIds: jest.fn().mockResolvedValue([]),
+    getSubscriptions: jest.fn().mockResolvedValue([]),
+    purchaseSubscription: jest.fn().mockResolvedValue(undefined),
+    getOwnedProductIds: jest.fn().mockResolvedValue([]),
     end: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   };
@@ -26,39 +27,40 @@ describe('IapService', () => {
     expect(backend.init).toHaveBeenCalled();
   });
 
-  it('loads the lifetime product', async () => {
+  it('loads the subscription plans', async () => {
     const backend = makeBackend({
-      getProducts: jest
+      getSubscriptions: jest
         .fn()
         .mockResolvedValue([
-          { productId: LIFETIME_PRODUCT_ID, title: 'x', description: 'y', price: '£8.99' },
+          { productId: WEEKLY_PLAN_ID, title: 'Weekly', description: 'x', price: '₹150' },
         ]),
     });
-    const products = await makeService(backend).service.loadProducts();
-    expect(backend.getProducts).toHaveBeenCalledWith([LIFETIME_PRODUCT_ID]);
-    expect(products).toHaveLength(1);
+    const plans = await makeService(backend).service.loadPlans();
+    expect(backend.getSubscriptions).toHaveBeenCalledWith(ALL_PLAN_IDS);
+    expect(plans).toHaveLength(1);
   });
 
-  it('grants premium after buying the lifetime unlock', async () => {
+  it('grants premium after subscribing', async () => {
     const backend = makeBackend();
     const { service, entitlements } = makeService(backend);
-    await service.buyLifetime();
-    expect(backend.purchase).toHaveBeenCalledWith(LIFETIME_PRODUCT_ID);
+    await service.subscribe(WEEKLY_PLAN_ID);
+    expect(backend.purchaseSubscription).toHaveBeenCalledWith(WEEKLY_PLAN_ID);
     expect(await entitlements.isPremium()).toBe(true);
   });
 
-  it('restores premium when the lifetime unlock is owned', async () => {
+  it('restores premium when a plan is owned', async () => {
     const backend = makeBackend({
-      getPurchasedProductIds: jest.fn().mockResolvedValue([LIFETIME_PRODUCT_ID]),
+      getOwnedProductIds: jest.fn().mockResolvedValue([WEEKLY_PLAN_ID]),
     });
     const { service, entitlements } = makeService(backend);
     expect(await service.restore()).toBe(true);
     expect(await entitlements.isPremium()).toBe(true);
   });
 
-  it('does not grant premium when nothing is owned', async () => {
-    const backend = makeBackend();
+  it('clears premium when no plan is owned', async () => {
+    const backend = makeBackend({ getOwnedProductIds: jest.fn().mockResolvedValue(['other']) });
     const { service, entitlements } = makeService(backend);
+    await entitlements.grantPremium();
     expect(await service.restore()).toBe(false);
     expect(await entitlements.isPremium()).toBe(false);
   });

@@ -15,6 +15,7 @@ function Probe(): React.JSX.Element {
     startPhoneSignIn,
     confirmPhone,
     logout,
+    deleteAccount,
     refreshPremium,
     services,
   } = useApp();
@@ -45,6 +46,9 @@ function Probe(): React.JSX.Element {
       </TouchableOpacity>
       <TouchableOpacity testID="logout" onPress={() => logout()}>
         <Text>logout</Text>
+      </TouchableOpacity>
+      <TouchableOpacity testID="delete" onPress={() => deleteAccount()}>
+        <Text>delete</Text>
       </TouchableOpacity>
       <TouchableOpacity
         testID="grant"
@@ -89,6 +93,15 @@ describe('AppProvider email flow', () => {
 
     fireEvent.press(screen.getByTestId('login'));
     await waitFor(() => expect(screen.getByTestId('user')).toHaveTextContent('email:a@b.com'));
+  });
+
+  it('deletes the account and clears the user', async () => {
+    renderProbe();
+    await waitFor(() => expect(screen.getByTestId('user')).toHaveTextContent('none'));
+    fireEvent.press(screen.getByTestId('signup'));
+    await waitFor(() => expect(screen.getByTestId('user')).toHaveTextContent('email:a@b.com'));
+    fireEvent.press(screen.getByTestId('delete'));
+    await waitFor(() => expect(screen.getByTestId('user')).toHaveTextContent('none'));
   });
 
   it('refreshes premium state', async () => {

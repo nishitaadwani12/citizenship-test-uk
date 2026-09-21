@@ -1,8 +1,14 @@
+import { accessibleQuestions, tierCounts } from './access';
 import { UK_QUESTIONS } from './questionBank';
 
 describe('UK_QUESTIONS', () => {
   it('has enough questions to build a full mock exam', () => {
     expect(UK_QUESTIONS.length).toBeGreaterThanOrEqual(24);
+  });
+
+  it('has at least a full mock exam of free questions and some premium ones', () => {
+    expect(accessibleQuestions(UK_QUESTIONS, false).length).toBeGreaterThanOrEqual(24);
+    expect(tierCounts(UK_QUESTIONS).premium).toBeGreaterThan(0);
   });
 
   it('has unique ids', () => {

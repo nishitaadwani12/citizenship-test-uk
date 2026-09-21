@@ -1,10 +1,12 @@
+import { ALL_PLAN_IDS } from './plans';
 import { EntitlementService } from './entitlementService';
 import { IapBackend, IapProduct } from './iapBackend';
 
-/** Product identifiers configured in App Store Connect / Play Console. */
-export const LIFETIME_PRODUCT_ID = 'uk_lifetime_unlock';
-
-/** Coordinates store purchases with the on-device entitlement record. */
+/** Coordinates subscription purchases with the on-device entitlement record.
+ *
+ *  Note: entitlement is tracked on-device. For production, validate receipts
+ *  server-side (or via RevenueCat) to reflect renewals/cancellations reliably —
+ *  see README. `restore()` re-checks currently-owned products. */
 export class IapService {
   constructor(
     private readonly backend: IapBackend,
@@ -15,24 +17,27 @@ export class IapService {
     await this.backend.init();
   }
 
-  async loadProducts(): Promise<IapProduct[]> {
-    return this.backend.getProducts([LIFETIME_PRODUCT_ID]);
+  /** Loads the subscription plans with localized store pricing. */
+  async loadPlans(): Promise<IapProduct[]> {
+    return this.backend.getSubscriptions(ALL_PLAN_IDS);
   }
 
-  /** Buys the lifetime unlock and grants premium on success. */
-  async buyLifetime(): Promise<void> {
-    await this.backend.purchase(LIFETIME_PRODUCT_ID);
+  /** Subscribes to a plan and grants premium on success. */
+  async subscribe(productId: string): Promise<void> {
+    await this.backend.purchaseSubscription(productId);
     await this.entitlements.grantPremium();
   }
 
-  /** Restores a previous purchase. Returns true if the lifetime unlock was
-   *  found and premium was (re)granted. */
+  /** Restores premium if the user owns any recognised subscription. Also clears
+   *  premium if none is owned, so a lapsed subscription is reflected. */
   async restore(): Promise<boolean> {
-    const owned = await this.backend.getPurchasedProductIds();
-    if (owned.includes(LIFETIME_PRODUCT_ID)) {
+    const owned = await this.backend.getOwnedProductIds();
+    const hasPlan = owned.some((id) => ALL_PLAN_IDS.includes(id));
+    if (hasPlan) {
       await this.entitlements.grantPremium();
       return true;
     }
+    await this.entitlements.clear();
     return false;
   }
 

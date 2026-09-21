@@ -22,6 +22,7 @@ export interface FirebaseAuthDeps {
     phoneE164: string,
   ): Promise<{ verificationId: string; confirm(code: string): Promise<RawAuthUser> }>;
   signOut(): Promise<void>;
+  deleteAccount(): Promise<void>;
   getCurrentUser(): Promise<RawAuthUser | null>;
 }
 
@@ -103,6 +104,13 @@ export class FirebaseAuthGateway implements AuthGateway {
 
   async signOut(): Promise<void> {
     await this.deps.signOut();
+  }
+
+  async deleteAccount(): Promise<void> {
+    await guard(
+      () => this.deps.deleteAccount(),
+      'Could not delete your account. Please sign in again and retry.',
+    );
   }
 
   async getCurrentUser(): Promise<AuthUser | null> {

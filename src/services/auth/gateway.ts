@@ -6,6 +6,8 @@ import { AuthUser, PhoneVerification } from './model';
 export interface AuthGateway {
   getCurrentUser(): Promise<AuthUser | null>;
   signOut(): Promise<void>;
+  /** Permanently deletes the signed-in user's account (store requirement). */
+  deleteAccount(): Promise<void>;
   signUpWithEmail(email: string, password: string): Promise<AuthUser>;
   signInWithEmail(email: string, password: string): Promise<AuthUser>;
   signInWithGoogle(): Promise<AuthUser>;
