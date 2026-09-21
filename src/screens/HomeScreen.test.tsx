@@ -6,7 +6,7 @@ import { HomeScreen } from './HomeScreen';
 describe('HomeScreen', () => {
   it('greets a free user and shows the upsell', async () => {
     const services = makeServices();
-    await services.auth.signUp('a@b.com', 'secret1');
+    await services.auth.signUpWithEmail('a@b.com', 'secret1');
     const onNavigate = jest.fn();
     renderWithApp(<HomeScreen onNavigate={onNavigate} />, services);
 
@@ -22,7 +22,7 @@ describe('HomeScreen', () => {
 
   it('hides the upsell for premium users', async () => {
     const services = makeServices();
-    await services.auth.signUp('a@b.com', 'secret1');
+    await services.auth.signUpWithEmail('a@b.com', 'secret1');
     await services.entitlements.grantPremium();
     renderWithApp(<HomeScreen onNavigate={jest.fn()} />, services);
 

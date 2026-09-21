@@ -1,63 +1,101 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
-import { makeServices, renderWithApp } from '../testkit';
+import { makeFakeAuthGateway, makeServices, renderWithApp } from '../testkit';
 import { AuthScreen } from './AuthScreen';
 
-describe('AuthScreen', () => {
-  it('defaults to login mode and toggles to signup', () => {
-    renderWithApp(<AuthScreen />, makeServices());
-    expect(screen.getByText('Welcome back')).toBeTruthy();
-    fireEvent.press(screen.getByTestId('toggle-mode'));
-    expect(screen.getByText('Create an account')).toBeTruthy();
-    fireEvent.press(screen.getByTestId('toggle-mode'));
-    expect(screen.getByText('Welcome back')).toBeTruthy();
-  });
+function renderAuth(auth = makeFakeAuthGateway()) {
+  renderWithApp(<AuthScreen />, makeServices({ auth }));
+  return auth;
+}
 
-  it('signs up successfully without showing an error', async () => {
-    const services = makeServices();
-    renderWithApp(<AuthScreen />, services);
-    fireEvent.press(screen.getByTestId('toggle-mode'));
-    fireEvent.changeText(screen.getByTestId('email-input'), 'new@example.com');
-    fireEvent.changeText(screen.getByTestId('password-input'), 'secret1');
-    fireEvent.press(screen.getByTestId('submit-button'));
-    await waitFor(() => expect(services.entitlements.isPremium()).resolves.toBe(false));
+describe('AuthScreen social sign-in', () => {
+  it('signs in with Google', async () => {
+    const auth = renderAuth();
+    fireEvent.press(screen.getByTestId('google-button'));
+    await waitFor(() => expect(auth.signInWithGoogle).toHaveBeenCalled());
     expect(screen.queryByTestId('auth-error')).toBeNull();
   });
 
-  it('shows a validation error on failed login', async () => {
+  it('signs in with Apple', async () => {
+    const auth = renderAuth();
+    fireEvent.press(screen.getByTestId('apple-button'));
+    await waitFor(() => expect(auth.signInWithApple).toHaveBeenCalled());
+  });
+
+  it('shows the provider error when a social sign-in fails', async () => {
     renderWithApp(<AuthScreen />, makeServices());
-    fireEvent.changeText(screen.getByTestId('email-input'), 'missing@example.com');
-    fireEvent.changeText(screen.getByTestId('password-input'), 'secret1');
-    fireEvent.press(screen.getByTestId('submit-button'));
-    await waitFor(() =>
-      expect(screen.getByTestId('auth-error')).toHaveTextContent(
-        'No account found for this email.',
-      ),
-    );
-    // Toggling mode clears the error.
-    fireEvent.press(screen.getByTestId('toggle-mode'));
-    expect(screen.queryByTestId('auth-error')).toBeNull();
+    fireEvent.press(screen.getByTestId('google-button'));
+    await waitFor(() => expect(screen.getByTestId('auth-error')).toHaveTextContent(/Firebase/));
   });
 
   it('shows a generic message when a non-Error is thrown', async () => {
-    const services = makeServices();
-    services.auth.login = jest.fn().mockRejectedValue('boom');
-    renderWithApp(<AuthScreen />, services);
-    fireEvent.changeText(screen.getByTestId('email-input'), 'a@b.com');
-    fireEvent.changeText(screen.getByTestId('password-input'), 'secret1');
-    fireEvent.press(screen.getByTestId('submit-button'));
+    renderAuth(makeFakeAuthGateway({ signInWithGoogle: jest.fn().mockRejectedValue('boom') }));
+    fireEvent.press(screen.getByTestId('google-button'));
     await waitFor(() =>
       expect(screen.getByTestId('auth-error')).toHaveTextContent('Something went wrong.'),
     );
   });
 
-  it('disables the button while a submit is in flight', () => {
-    const services = makeServices();
-    services.auth.login = jest.fn().mockReturnValue(new Promise(() => undefined));
-    renderWithApp(<AuthScreen />, services);
+  it('disables buttons while a sign-in is in flight', () => {
+    renderAuth(
+      makeFakeAuthGateway({ signInWithGoogle: jest.fn().mockReturnValue(new Promise(() => undefined)) }),
+    );
+    fireEvent.press(screen.getByTestId('google-button'));
+    expect(screen.getByTestId('google-button').props.accessibilityState.disabled).toBe(true);
+  });
+});
+
+describe('AuthScreen email', () => {
+  it('logs in with email by default', async () => {
+    const auth = renderAuth();
+    fireEvent.press(screen.getByTestId('mode-email')); // stays on the email tab
     fireEvent.changeText(screen.getByTestId('email-input'), 'a@b.com');
     fireEvent.changeText(screen.getByTestId('password-input'), 'secret1');
     fireEvent.press(screen.getByTestId('submit-button'));
-    expect(screen.getByTestId('submit-button').props.accessibilityState.disabled).toBe(true);
+    await waitFor(() => expect(auth.signInWithEmail).toHaveBeenCalledWith('a@b.com', 'secret1'));
+  });
+
+  it('toggles to signup and creates an account', async () => {
+    const auth = renderAuth();
+    fireEvent.press(screen.getByTestId('toggle-mode'));
+    expect(screen.getByText('Sign up')).toBeTruthy();
+    fireEvent.changeText(screen.getByTestId('email-input'), 'new@b.com');
+    fireEvent.changeText(screen.getByTestId('password-input'), 'secret1');
+    fireEvent.press(screen.getByTestId('submit-button'));
+    await waitFor(() => expect(auth.signUpWithEmail).toHaveBeenCalledWith('new@b.com', 'secret1'));
+  });
+
+  it('shows a validation error on failed email login', async () => {
+    renderWithApp(<AuthScreen />, makeServices());
+    fireEvent.changeText(screen.getByTestId('email-input'), 'missing@example.com');
+    fireEvent.changeText(screen.getByTestId('password-input'), 'secret1');
+    fireEvent.press(screen.getByTestId('submit-button'));
+    await waitFor(() =>
+      expect(screen.getByTestId('auth-error')).toHaveTextContent('No account found for this email.'),
+    );
+  });
+});
+
+describe('AuthScreen phone', () => {
+  it('sends a code then verifies it', async () => {
+    const auth = renderAuth();
+    fireEvent.press(screen.getByTestId('mode-phone'));
+    fireEvent.changeText(screen.getByTestId('phone-input'), '+447700900123');
+    fireEvent.press(screen.getByTestId('send-code-button'));
+    await waitFor(() => expect(screen.getByTestId('code-input')).toBeTruthy());
+    expect(auth.startPhoneSignIn).toHaveBeenCalledWith('+447700900123');
+
+    fireEvent.changeText(screen.getByTestId('code-input'), '123456');
+    fireEvent.press(screen.getByTestId('confirm-code-button'));
+    await waitFor(() => expect(screen.queryByTestId('auth-error')).toBeNull());
+  });
+
+  it('shows an error when sending the code fails', async () => {
+    renderWithApp(<AuthScreen />, makeServices());
+    fireEvent.press(screen.getByTestId('mode-phone'));
+    fireEvent.changeText(screen.getByTestId('phone-input'), '+447700900123');
+    fireEvent.press(screen.getByTestId('send-code-button'));
+    await waitFor(() => expect(screen.getByTestId('auth-error')).toHaveTextContent(/Firebase/));
+    expect(screen.queryByTestId('code-input')).toBeNull();
   });
 });

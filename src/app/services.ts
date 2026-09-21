@@ -1,18 +1,35 @@
-import { AuthService } from '../services/authService';
+import { AuthGateway } from '../services/auth/gateway';
+import { activeFirebaseConfig, FirebaseConfig } from '../services/auth/firebaseConfig';
+import { LocalAuthGateway } from '../services/auth/localAuthGateway';
 import { EntitlementService } from '../services/entitlementService';
-import { cryptoHasher } from '../services/hasher';
+import { cryptoHasher, Hasher } from '../services/hasher';
 import { rniapBackend } from '../services/iapBackend';
 import { IapService } from '../services/iapService';
 import { ProgressService } from '../services/progressService';
-import { asyncStorageStore } from '../services/storage';
+import { asyncStorageStore, KeyValueStore } from '../services/storage';
 
-/** The set of services the UI depends on. Bundled so they can be provided as a
- *  unit and swapped for fakes in tests. */
+/** The set of services the UI depends on. */
 export interface AppServices {
-  auth: AuthService;
+  auth: AuthGateway;
   entitlements: EntitlementService;
   progress: ProgressService;
   iap: IapService;
+}
+
+/** Chooses the Firebase gateway when config is present, else the on-device
+ *  local gateway. The Firebase wiring is required lazily so its SDKs are never
+ *  loaded (or bundled into web/Expo Go execution) until actually used. */
+export function createAuthGateway(
+  store: KeyValueStore,
+  hasher: Hasher,
+  config: FirebaseConfig | null = activeFirebaseConfig,
+): AuthGateway {
+  if (config) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { buildFirebaseGateway } = require('../services/auth/authWiring');
+    return buildFirebaseGateway(config);
+  }
+  return new LocalAuthGateway(store, hasher);
 }
 
 /** Builds the production services backed by on-device storage and the real
@@ -20,7 +37,7 @@ export interface AppServices {
 export function createServices(): AppServices {
   const entitlements = new EntitlementService(asyncStorageStore);
   return {
-    auth: new AuthService(asyncStorageStore, cryptoHasher),
+    auth: createAuthGateway(asyncStorageStore, cryptoHasher),
     entitlements,
     progress: new ProgressService(asyncStorageStore),
     iap: new IapService(rniapBackend, entitlements),

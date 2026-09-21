@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { AuthUser } from '../services/authService';
+import { AuthUser, PhoneVerification } from '../services/auth/model';
 import { AppServices, createServices } from './services';
 
 /** App-wide state and actions exposed to screens. */
@@ -8,8 +8,12 @@ export interface AppContextValue {
   user: AuthUser | null;
   isPremium: boolean;
   services: AppServices;
-  signUp(email: string, password: string): Promise<void>;
-  login(email: string, password: string): Promise<void>;
+  signUpWithEmail(email: string, password: string): Promise<void>;
+  signInWithEmail(email: string, password: string): Promise<void>;
+  signInWithGoogle(): Promise<void>;
+  signInWithApple(): Promise<void>;
+  startPhoneSignIn(phoneNumber: string): Promise<PhoneVerification>;
+  confirmPhone(verification: PhoneVerification, code: string): Promise<void>;
   logout(): Promise<void>;
   refreshPremium(): Promise<void>;
 }
@@ -50,24 +54,50 @@ export function AppProvider({
     };
   }, [resolved]);
 
-  const signUp = useCallback(
-    async (email: string, password: string) => {
-      setUser(await resolved.auth.signUp(email, password));
+  const applyUser = useCallback(
+    async (signedIn: AuthUser) => {
+      setUser(signedIn);
       await refreshPremium();
     },
-    [resolved, refreshPremium],
+    [refreshPremium],
   );
 
-  const login = useCallback(
+  const signUpWithEmail = useCallback(
     async (email: string, password: string) => {
-      setUser(await resolved.auth.login(email, password));
-      await refreshPremium();
+      await applyUser(await resolved.auth.signUpWithEmail(email, password));
     },
-    [resolved, refreshPremium],
+    [resolved, applyUser],
+  );
+
+  const signInWithEmail = useCallback(
+    async (email: string, password: string) => {
+      await applyUser(await resolved.auth.signInWithEmail(email, password));
+    },
+    [resolved, applyUser],
+  );
+
+  const signInWithGoogle = useCallback(async () => {
+    await applyUser(await resolved.auth.signInWithGoogle());
+  }, [resolved, applyUser]);
+
+  const signInWithApple = useCallback(async () => {
+    await applyUser(await resolved.auth.signInWithApple());
+  }, [resolved, applyUser]);
+
+  const startPhoneSignIn = useCallback(
+    (phoneNumber: string) => resolved.auth.startPhoneSignIn(phoneNumber),
+    [resolved],
+  );
+
+  const confirmPhone = useCallback(
+    async (verification: PhoneVerification, code: string) => {
+      await applyUser(await verification.confirm(code));
+    },
+    [applyUser],
   );
 
   const logout = useCallback(async () => {
-    await resolved.auth.logout();
+    await resolved.auth.signOut();
     setUser(null);
   }, [resolved]);
 
@@ -76,8 +106,12 @@ export function AppProvider({
     user,
     isPremium,
     services: resolved,
-    signUp,
-    login,
+    signUpWithEmail,
+    signInWithEmail,
+    signInWithGoogle,
+    signInWithApple,
+    startPhoneSignIn,
+    confirmPhone,
     logout,
     refreshPremium,
   };

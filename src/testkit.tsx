@@ -2,7 +2,9 @@ import { render } from '@testing-library/react-native';
 import React from 'react';
 import { AppProvider } from './app/AppContext';
 import { AppServices } from './app/services';
-import { AuthService } from './services/authService';
+import { AuthGateway } from './services/auth/gateway';
+import { LocalAuthGateway } from './services/auth/localAuthGateway';
+import { AuthUser } from './services/auth/model';
 import { EntitlementService } from './services/entitlementService';
 import { Hasher } from './services/hasher';
 import { IapBackend } from './services/iapBackend';
@@ -26,15 +28,49 @@ export function makeFakeBackend(overrides: Partial<IapBackend> = {}): IapBackend
   };
 }
 
-/** Builds real services over an in-memory store, with a fake IAP backend. */
-export function makeServices(iapBackend: IapBackend = makeFakeBackend()): AppServices {
+function userFor(id: string, provider: AuthUser['provider']): AuthUser {
+  return { id, email: `${id}`, phoneNumber: null, displayName: null, provider };
+}
+
+/** A fully fake AuthGateway for exercising social/phone flows in UI tests. */
+export function makeFakeAuthGateway(overrides: Partial<AuthGateway> = {}): AuthGateway {
+  return {
+    getCurrentUser: jest.fn().mockResolvedValue(null),
+    signOut: jest.fn().mockResolvedValue(undefined),
+    signUpWithEmail: jest.fn(async (email: string) => userFor(email, 'email')),
+    signInWithEmail: jest.fn(async (email: string) => userFor(email, 'email')),
+    signInWithGoogle: jest.fn(async () => userFor('g@x.com', 'google')),
+    signInWithApple: jest.fn(async () => userFor('a@x.com', 'apple')),
+    startPhoneSignIn: jest.fn(async () => ({
+      verificationId: 'vid',
+      confirm: jest.fn(async () => userFor('+447700900123', 'phone')),
+    })),
+    ...overrides,
+  };
+}
+
+/** Builds real services over an in-memory store. Any service can be overridden. */
+export function makeServices(overrides: Partial<AppServices> = {}): AppServices {
   const store = createMemoryStore();
   const entitlements = new EntitlementService(store);
   return {
-    auth: new AuthService(store, fakeHasher, () => 'salt'),
+    auth: new LocalAuthGateway(store, fakeHasher, () => 'salt'),
     entitlements,
     progress: new ProgressService(store),
-    iap: new IapService(iapBackend, entitlements),
+    iap: new IapService(makeFakeBackend(), entitlements),
+    ...overrides,
+  };
+}
+
+/** Convenience: services whose IAP uses the given fake backend. */
+export function makeServicesWithBackend(backend: IapBackend): AppServices {
+  const store = createMemoryStore();
+  const entitlements = new EntitlementService(store);
+  return {
+    auth: new LocalAuthGateway(store, fakeHasher, () => 'salt'),
+    entitlements,
+    progress: new ProgressService(store),
+    iap: new IapService(backend, entitlements),
   };
 }
 

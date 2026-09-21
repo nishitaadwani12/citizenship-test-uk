@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useApp } from '../app/AppContext';
 import { styles } from '../app/theme';
+import { displayIdentity } from '../services/auth/model';
 import { MainRoute } from '../navigation/routes';
 
 export interface HomeScreenProps {
@@ -26,7 +27,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps): React.JSX.Element {
 
   return (
     <ScrollView style={styles.screen}>
-      <Text style={styles.title}>Hi, {user?.email ?? 'there'}</Text>
+      <Text style={styles.title}>Hi, {displayIdentity(user)}</Text>
       <Text style={styles.subtitle} testID="premium-status">
         {isPremium ? 'Premium unlocked — full access' : 'Free plan'}
       </Text>

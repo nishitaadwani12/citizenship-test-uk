@@ -10,8 +10,10 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/**/index.ts',
     '!src/**/types.ts',
+    '!src/services/auth/gateway.ts',
     '!src/navigation/**',
     '!src/testkit.tsx',
+    '!src/services/auth/authWiring.ts',
   ],
   coverageThreshold: {
     global: {

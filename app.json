@@ -7,6 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "lifeintheuk",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.citizenshipapps.lifeintheuk"
@@ -23,6 +24,10 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-web-browser",
+      "expo-apple-authentication"
+    ]
   }
 }

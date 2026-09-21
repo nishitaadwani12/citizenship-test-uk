@@ -2,13 +2,12 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react-nativ
 import React from 'react';
 import { AppProvider } from '../app/AppContext';
 import { LIFETIME_PRODUCT_ID } from '../services/iapService';
-import { makeFakeBackend, makeServices, renderWithApp } from '../testkit';
+import { makeFakeBackend, makeServices, makeServicesWithBackend, renderWithApp } from '../testkit';
 import { PaywallScreen } from './PaywallScreen';
 
 describe('PaywallScreen', () => {
   it('shows a default price and loaded product price', async () => {
-    const withPrice = makeServices(
-      makeFakeBackend({
+    const withPrice = makeServicesWithBackend(makeFakeBackend({
         getProducts: jest
           .fn()
           .mockResolvedValue([
@@ -23,8 +22,7 @@ describe('PaywallScreen', () => {
   });
 
   it('shows a store-unavailable message when loading products fails', async () => {
-    const services = makeServices(
-      makeFakeBackend({ getProducts: jest.fn().mockRejectedValue(new Error('down')) }),
+    const services = makeServicesWithBackend(makeFakeBackend({ getProducts: jest.fn().mockRejectedValue(new Error('down')) }),
     );
     renderWithApp(<PaywallScreen onNavigate={jest.fn()} />, services);
     await waitFor(() =>
@@ -42,8 +40,7 @@ describe('PaywallScreen', () => {
   });
 
   it('shows a message when the purchase fails', async () => {
-    const services = makeServices(
-      makeFakeBackend({ purchase: jest.fn().mockRejectedValue(new Error('nope')) }),
+    const services = makeServicesWithBackend(makeFakeBackend({ purchase: jest.fn().mockRejectedValue(new Error('nope')) }),
     );
     renderWithApp(<PaywallScreen onNavigate={jest.fn()} />, services);
     fireEvent.press(screen.getByTestId('buy-button'));
@@ -56,8 +53,7 @@ describe('PaywallScreen', () => {
 
   it('restores a previous purchase and returns home', async () => {
     const onNavigate = jest.fn();
-    const services = makeServices(
-      makeFakeBackend({
+    const services = makeServicesWithBackend(makeFakeBackend({
         getPurchasedProductIds: jest.fn().mockResolvedValue([LIFETIME_PRODUCT_ID]),
       }),
     );
@@ -77,8 +73,7 @@ describe('PaywallScreen', () => {
   });
 
   it('shows a message when restore fails', async () => {
-    const services = makeServices(
-      makeFakeBackend({
+    const services = makeServicesWithBackend(makeFakeBackend({
         getPurchasedProductIds: jest.fn().mockRejectedValue(new Error('boom')),
       }),
     );
@@ -92,8 +87,7 @@ describe('PaywallScreen', () => {
   });
 
   it('disables the buy button while a purchase is in flight', () => {
-    const services = makeServices(
-      makeFakeBackend({ purchase: jest.fn().mockReturnValue(new Promise(() => undefined)) }),
+    const services = makeServicesWithBackend(makeFakeBackend({ purchase: jest.fn().mockReturnValue(new Promise(() => undefined)) }),
     );
     renderWithApp(<PaywallScreen onNavigate={jest.fn()} />, services);
     fireEvent.press(screen.getByTestId('buy-button'));

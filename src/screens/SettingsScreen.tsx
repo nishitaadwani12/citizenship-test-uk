@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useApp } from '../app/AppContext';
 import { styles } from '../app/theme';
+import { displayIdentity } from '../services/auth/model';
 import { MainRoute } from '../navigation/routes';
 
 export interface SettingsScreenProps {
@@ -28,7 +29,7 @@ export function SettingsScreen({ onNavigate }: SettingsScreenProps): React.JSX.E
     <ScrollView style={styles.screen}>
       <Text style={styles.title}>Settings</Text>
       <Text style={styles.subtitle} testID="settings-account">
-        Signed in as {user?.email ?? 'unknown'}
+        Signed in as {user ? displayIdentity(user) : 'unknown'}
       </Text>
       <Text style={styles.label} testID="settings-plan">
         Plan: {isPremium ? 'Premium' : 'Free'}
