@@ -1,15 +1,18 @@
 {
   "expo": {
-    "name": "UK",
-    "slug": "UK",
+    "name": "Life in the UK Test",
+    "slug": "life-in-the-uk-test",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.citizenshipapps.lifeintheuk"
     },
     "android": {
+      "package": "com.citizenshipapps.lifeintheuk",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
