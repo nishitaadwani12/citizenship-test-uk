@@ -20,6 +20,13 @@ module.exports = ({ config }) => ({
         iosAppId: process.env.EXPO_PUBLIC_ADMOB_IOS_APP_ID ?? TEST_IOS_APP_ID,
       },
     ],
+    [
+      'expo-tracking-transparency',
+      {
+        userTrackingPermission:
+          'This identifier will be used to deliver personalized ads to you.',
+      },
+    ],
   ],
   extra: {
     ...config.extra,
