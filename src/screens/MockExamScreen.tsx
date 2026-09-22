@@ -5,6 +5,7 @@ import { styles } from '../app/theme';
 import { QuizRunner } from '../components/QuizRunner';
 import { ResultsView } from '../components/ResultsView';
 import { accessibleQuestions } from '../core/access';
+import { maybeShowInterstitial } from '../services/ads/interstitialAds';
 import { generateMockExam, MOCK_EXAM_SIZE } from '../core/mockExam';
 import { UK_QUESTIONS } from '../core/questionBank';
 import { ScoreResult } from '../core/types';
@@ -29,6 +30,7 @@ export function MockExamScreen({ onNavigate }: MockExamScreenProps): React.JSX.E
 
   async function handleFinish(r: ScoreResult): Promise<void> {
     await services.progress.record(r);
+    maybeShowInterstitial(isPremium);
     setResult(r);
   }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useApp } from '../app/AppContext';
 import { styles } from '../app/theme';
+import { AdBanner } from '../components/AdBanner';
 import { displayIdentity } from '../services/auth/model';
 import { MainRoute } from '../navigation/routes';
 
@@ -51,6 +52,7 @@ export function HomeScreen({ onNavigate }: HomeScreenProps): React.JSX.Element {
         </TouchableOpacity>
       )}
       <View />
+      <AdBanner />
     </ScrollView>
   );
 }

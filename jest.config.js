@@ -14,6 +14,12 @@ module.exports = {
     '!src/navigation/**',
     '!src/testkit.tsx',
     '!src/services/auth/authWiring.ts',
+    '!src/components/AdBanner.tsx',
+    '!src/components/AdBanner.web.tsx',
+    '!src/services/ads/interstitialAds.ts',
+    '!src/services/ads/interstitialAds.web.ts',
+    '!src/services/ads/initAds.ts',
+    '!src/services/ads/initAds.web.ts',
   ],
   coverageThreshold: {
     global: {

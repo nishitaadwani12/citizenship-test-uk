@@ -13,6 +13,23 @@ jest.mock('expo-crypto', () => ({
   randomUUID: jest.fn(() => 'test-uuid'),
 }));
 
+// Mock the Google Mobile Ads native module for the test environment.
+jest.mock('react-native-google-mobile-ads', () => ({
+  __esModule: true,
+  default: () => ({ initialize: jest.fn().mockResolvedValue([]) }),
+  BannerAd: () => null,
+  BannerAdSize: { ANCHORED_ADAPTIVE_BANNER: 'ANCHORED_ADAPTIVE_BANNER' },
+  TestIds: { BANNER: 'banner-test', INTERSTITIAL: 'interstitial-test' },
+  InterstitialAd: {
+    createForAdRequest: jest.fn(() => ({
+      addAdEventListener: jest.fn(() => jest.fn()),
+      load: jest.fn(),
+      show: jest.fn(),
+    })),
+  },
+  AdEventType: { LOADED: 'loaded' },
+}));
+
 // Silence the react-native-iap native module in the test environment.
 // Individual tests inject their own fake IAP backend, so the real native
 // bridge is never exercised here.
