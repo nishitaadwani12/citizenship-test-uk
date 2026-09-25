@@ -21,6 +21,10 @@ export interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+/** Demo account used by app-store reviewers; treated as premium (they cannot
+ *  complete a real purchase during review). */
+const REVIEWER_EMAIL = 'reviewer@nivee.app';
+
 /** Provides authentication and entitlement state to the tree. Services can be
  *  injected for testing; production defaults to on-device services. */
 export function AppProvider({
@@ -110,7 +114,9 @@ export function AppProvider({
   const value: AppContextValue = {
     loading,
     user,
-    isPremium,
+    // The store reviewer's demo account is treated as premium so reviewers can
+    // access premium content without making a purchase (they can't buy in review).
+    isPremium: isPremium || user?.email === REVIEWER_EMAIL,
     services: resolved,
     signUpWithEmail,
     signInWithEmail,

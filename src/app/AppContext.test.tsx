@@ -104,6 +104,24 @@ describe('AppProvider email flow', () => {
     await waitFor(() => expect(screen.getByTestId('user')).toHaveTextContent('none'));
   });
 
+  it('treats the reviewer demo account as premium without a purchase', async () => {
+    const auth = makeFakeAuthGateway({
+      getCurrentUser: jest.fn().mockResolvedValue({
+        id: 'r',
+        email: 'reviewer@nivee.app',
+        phoneNumber: null,
+        displayName: null,
+        provider: 'email',
+      }),
+    });
+    render(
+      <AppProvider services={makeServices({ auth })}>
+        <Probe />
+      </AppProvider>,
+    );
+    await waitFor(() => expect(screen.getByTestId('premium')).toHaveTextContent('true'));
+  });
+
   it('refreshes premium state', async () => {
     renderProbe();
     await waitFor(() => expect(screen.getByTestId('premium')).toHaveTextContent('false'));
