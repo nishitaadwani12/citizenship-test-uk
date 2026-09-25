@@ -9,6 +9,18 @@
 const TEST_ANDROID_APP_ID = 'ca-app-pub-3940256099942544~3347511713';
 const TEST_IOS_APP_ID = 'ca-app-pub-3940256099942544~1458002511';
 
+// Firebase web config for the shared "citizenship-apps" project. These are
+// client-side keys (not secret) so they're safe to commit; access is controlled
+// by Firebase Security Rules and authorized domains. Env vars still override.
+const FIREBASE = {
+  apiKey: 'AIzaSyA8snXsvR-xV_NO3mKFdj1gMmOhV8XVbE8',
+  authDomain: 'citizenship-apps-270d1.firebaseapp.com',
+  projectId: 'citizenship-apps-270d1',
+  appId: '1:756598450767:web:886fe64780cb45dc3d583a',
+  messagingSenderId: '756598450767',
+  storageBucket: 'citizenship-apps-270d1.firebasestorage.app',
+};
+
 module.exports = ({ config }) => ({
   ...config,
   plugins: [
@@ -31,12 +43,13 @@ module.exports = ({ config }) => ({
   extra: {
     ...config.extra,
     firebase: {
-      apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-      authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-      appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
-      messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-      storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY ?? FIREBASE.apiKey,
+      authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN ?? FIREBASE.authDomain,
+      projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID ?? FIREBASE.projectId,
+      appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID ?? FIREBASE.appId,
+      messagingSenderId:
+        process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? FIREBASE.messagingSenderId,
+      storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET ?? FIREBASE.storageBucket,
     },
     googleClientIds: {
       ios: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
