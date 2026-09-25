@@ -1,6 +1,6 @@
 # Terms of Service
 
-_Last updated: 2026-09-22_
+_Last updated: 2026-09-25_
 
 > Replace publisher/contact details, set the effective date, and have a lawyer
 > review before launch. Must match the in-app copy in `src/content/legal.ts`.
@@ -31,4 +31,4 @@ UK Home Office or His Majesty's Government.
 We may update these Terms and will revise the date above.
 
 ## Contact
-support@example.com
+nivee12@gmail.com

@@ -6,9 +6,9 @@
  * the privacy policy so you can paste its URL into App Store Connect / Play
  * Console. Have a lawyer review before launch.
  */
-export const COMPANY = 'the app publisher';
-export const CONTACT_EMAIL = 'support@example.com';
-export const EFFECTIVE_DATE = '2026-09-22';
+export const COMPANY = 'Nivee';
+export const CONTACT_EMAIL = 'nivee12@gmail.com';
+export const EFFECTIVE_DATE = '2026-09-25';
 
 export interface LegalDocument {
   title: string;

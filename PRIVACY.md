@@ -1,12 +1,12 @@
 # Privacy Policy
 
-_Last updated: 2026-09-22_
+_Last updated: 2026-09-25_
 
-> Replace "the app publisher" and the contact email below with your details, set
+> Replace "Nivee" and the contact email below with your details, set
 > the effective date, host this page at a public URL, and have a lawyer review it
 > before launch. This must match the in-app copy in `src/content/legal.ts`.
 
-This Privacy Policy explains how **the app publisher** ("we") handles your
+This Privacy Policy explains how **Nivee** ("we") handles your
 information in the Life in the UK Test app.
 
 ## Information we collect
@@ -37,4 +37,4 @@ their data.
 We may update this policy and will revise the date above.
 
 ## Contact
-support@example.com
+nivee12@gmail.com

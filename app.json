@@ -28,6 +28,14 @@
     "plugins": [
       "expo-web-browser",
       "expo-apple-authentication"
-    ]
+    ],
+    "extra": {
+      "firebase": {},
+      "googleClientIds": {},
+      "admob": {},
+      "eas": {
+        "projectId": "baa5d355-60e2-46e9-a85c-6b19699d5cce"
+      }
+    }
   }
 }
