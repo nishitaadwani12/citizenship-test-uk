@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useApp } from '../app/AppContext';
 import { pressBusyBtn, pressFade } from '../app/press';
 import { styles } from '../app/theme';
@@ -110,23 +110,26 @@ export function PaywallScreen({ onNavigate }: PaywallScreenProps): React.JSX.Ele
         </Pressable>
       ))}
 
-      <Text style={styles.label} testID="paywall-terms">
-        Subscriptions renew automatically until cancelled. Cancel anytime in your store account at
-        least 24 hours before renewal. Payment is charged to your Apple or Google account.
-      </Text>
-
-      <Pressable testID="restore-button" disabled={busy} onPress={restore} style={link}>
-        <Text style={styles.secondaryText}>Restore purchase</Text>
-      </Pressable>
-      <Pressable testID="paywall-terms-link" onPress={() => onNavigate('Terms')} style={link}>
-        <Text style={styles.secondaryText}>Terms of Service</Text>
-      </Pressable>
-      <Pressable testID="paywall-privacy-link" onPress={() => onNavigate('Privacy')} style={link}>
-        <Text style={styles.secondaryText}>Privacy Policy</Text>
-      </Pressable>
-      <Pressable testID="paywall-home" onPress={() => onNavigate('Home')} style={link}>
-        <Text style={styles.secondaryText}>Not now</Text>
-      </Pressable>
+      <View style={styles.footer}>
+        <Text style={styles.footerNote} testID="paywall-terms">
+          Subscriptions renew automatically until cancelled. Cancel anytime in your store account at
+          least 24 hours before renewal. Payment is charged to your Apple or Google account.
+        </Text>
+        <View style={styles.footerLinks}>
+          <Pressable testID="restore-button" disabled={busy} onPress={restore} style={link}>
+            <Text style={styles.footerLink}>Restore purchase</Text>
+          </Pressable>
+          <Pressable testID="paywall-terms-link" onPress={() => onNavigate('Terms')} style={link}>
+            <Text style={styles.footerLink}>Terms of Service</Text>
+          </Pressable>
+          <Pressable testID="paywall-privacy-link" onPress={() => onNavigate('Privacy')} style={link}>
+            <Text style={styles.footerLink}>Privacy Policy</Text>
+          </Pressable>
+          <Pressable testID="paywall-home" onPress={() => onNavigate('Home')} style={link}>
+            <Text style={styles.footerLink}>Not now</Text>
+          </Pressable>
+        </View>
+      </View>
     </ScrollView>
   );
 }

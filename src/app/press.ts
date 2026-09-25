@@ -10,7 +10,10 @@ export const pressBtn = ({ pressed }: P) => [styles.button, pressed && styles.bu
 
 export const pressCard = ({ pressed }: P) => [styles.card, pressed && styles.cardPressed];
 
-export const pressFade = ({ pressed }: P) => (pressed ? { opacity: 0.6 } : null);
+export const pressFade = ({ pressed }: P): S => ({
+  cursor: 'pointer',
+  opacity: pressed ? 0.6 : 1,
+});
 
 export const pressUpsell = ({ pressed }: P) => [styles.upsell, pressed && { opacity: 0.7 }];
 

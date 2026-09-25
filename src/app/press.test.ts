@@ -22,8 +22,8 @@ describe('press style callbacks', () => {
   });
 
   it('fades only when pressed', () => {
-    expect(pressFade({ pressed: true })).toEqual({ opacity: 0.6 });
-    expect(pressFade({ pressed: false })).toBeNull();
+    expect(pressFade({ pressed: true })).toEqual({ cursor: 'pointer', opacity: 0.6 });
+    expect(pressFade({ pressed: false })).toEqual({ cursor: 'pointer', opacity: 1 });
   });
 
   it('covers busy and pressed permutations for the busy button', () => {
