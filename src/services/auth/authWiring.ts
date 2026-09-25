@@ -112,7 +112,22 @@ export function buildFirebaseDeps(config: FirebaseConfig): FirebaseAuthDeps {
       }
     },
     getCurrentUser: async () => {
-      const current = auth().currentUser;
+      const a = auth();
+      // Wait for Firebase to rehydrate the persisted session on cold start,
+      // otherwise `currentUser` is null before restoration completes and a
+      // returning user would be wrongly shown the login screen.
+      if (typeof (a as { authStateReady?: () => Promise<void> }).authStateReady === 'function') {
+        await (a as { authStateReady: () => Promise<void> }).authStateReady();
+      } else {
+        const { onAuthStateChanged } = require('firebase/auth');
+        await new Promise<void>((resolve) => {
+          const unsub = onAuthStateChanged(a, () => {
+            unsub();
+            resolve();
+          });
+        });
+      }
+      const current = a.currentUser;
       return current ? mapUser(current) : null;
     },
   };
