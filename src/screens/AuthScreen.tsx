@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useApp } from '../app/AppContext';
-import { pressBusyBtn, pressFade } from '../app/press';
+import { pressBusyBtn, pressFade, pressVariant } from '../app/press';
 import { colors, styles } from '../app/theme';
 import { PhoneVerification } from '../services/auth/model';
 
@@ -12,14 +12,8 @@ type Mode = 'email' | 'phone';
  *  surface a clear message. On success the app context updates the user and the
  *  root navigator switches to the main app. */
 export function AuthScreen(): React.JSX.Element {
-  const {
-    signUpWithEmail,
-    signInWithEmail,
-    signInWithGoogle,
-    signInWithApple,
-    startPhoneSignIn,
-    confirmPhone,
-  } = useApp();
+  const { signUpWithEmail, signInWithEmail, signInWithGoogle, startPhoneSignIn, confirmPhone } =
+    useApp();
 
   const [mode, setMode] = useState<Mode>('email');
   const [isSignup, setIsSignup] = useState(false);
@@ -57,11 +51,13 @@ export function AuthScreen(): React.JSX.Element {
         </Text>
       ) : null}
 
-      <Pressable testID="google-button" style={btnStyle} disabled={busy} onPress={() => run(signInWithGoogle)}>
-        <Text style={styles.buttonText}>Continue with Google</Text>
-      </Pressable>
-      <Pressable testID="apple-button" style={btnStyle} disabled={busy} onPress={() => run(signInWithApple)}>
-        <Text style={styles.buttonText}>Continue with Apple</Text>
+      <Pressable
+        testID="google-button"
+        style={pressVariant(styles.googleButton, busy)}
+        disabled={busy}
+        onPress={() => run(signInWithGoogle)}
+      >
+        <Text style={styles.googleButtonText}>Continue with Google</Text>
       </Pressable>
 
       <View style={styles.divider}>

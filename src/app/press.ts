@@ -8,6 +8,12 @@ type S = StyleProp<ViewStyle>;
 
 export const pressBtn = ({ pressed }: P) => [styles.button, pressed && styles.buttonPressed];
 
+/** A variant button (e.g. the white Google button): dims while busy or pressed. */
+export const pressVariant =
+  (base: S, busy: boolean) =>
+  ({ pressed }: P): S =>
+    [base, busy && { opacity: 0.6 }, pressed && !busy && { opacity: 0.85 }];
+
 export const pressCard = ({ pressed }: P) => [styles.card, pressed && styles.cardPressed];
 
 export const pressFade = ({ pressed }: P): S => ({

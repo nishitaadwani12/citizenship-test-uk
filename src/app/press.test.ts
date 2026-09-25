@@ -7,6 +7,7 @@ import {
   pressFade,
   pressOption,
   pressUpsell,
+  pressVariant,
 } from './press';
 
 describe('press style callbacks', () => {
@@ -38,6 +39,14 @@ describe('press style callbacks', () => {
     for (const canAdvance of [true, false]) {
       for (const pressed of [true, false]) {
         expect(pressAdvanceBtn(canAdvance)({ pressed })).toBeTruthy();
+      }
+    }
+  });
+
+  it('covers busy and pressed permutations for variant buttons', () => {
+    for (const busy of [true, false]) {
+      for (const pressed of [true, false]) {
+        expect(pressVariant({}, busy)({ pressed })).toBeTruthy();
       }
     }
   });

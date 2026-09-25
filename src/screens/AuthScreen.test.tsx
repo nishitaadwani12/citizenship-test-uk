@@ -16,12 +16,6 @@ describe('AuthScreen social sign-in', () => {
     expect(screen.queryByTestId('auth-error')).toBeNull();
   });
 
-  it('signs in with Apple', async () => {
-    const auth = renderAuth();
-    fireEvent.press(screen.getByTestId('apple-button'));
-    await waitFor(() => expect(auth.signInWithApple).toHaveBeenCalled());
-  });
-
   it('shows the provider error when a social sign-in fails', async () => {
     renderWithApp(<AuthScreen />, makeServices());
     fireEvent.press(screen.getByTestId('google-button'));
