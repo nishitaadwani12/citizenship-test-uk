@@ -19,6 +19,13 @@ describe('MockExamScreen', () => {
     expect(onNavigate).toHaveBeenCalledWith('Paywall');
   });
 
+  it('navigates home via the back link', () => {
+    const onNavigate = jest.fn();
+    renderWithApp(<MockExamScreen onNavigate={onNavigate} />, makeServices());
+    fireEvent.press(screen.getByTestId('exam-back'));
+    expect(onNavigate).toHaveBeenCalledWith('Home');
+  });
+
   it('records progress and shows results, then retries', async () => {
     const services = makeServices();
     const onNavigate = jest.fn();

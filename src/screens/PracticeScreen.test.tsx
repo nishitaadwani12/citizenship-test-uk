@@ -23,6 +23,13 @@ describe('PracticeScreen', () => {
     expect(onNavigate).toHaveBeenCalledWith('Paywall');
   });
 
+  it('navigates home via the back link', () => {
+    const onNavigate = jest.fn();
+    renderWithApp(<PracticeScreen onNavigate={onNavigate} />, makeServices());
+    fireEvent.press(screen.getByTestId('practice-back'));
+    expect(onNavigate).toHaveBeenCalledWith('Home');
+  });
+
   it('completes a run, shows results, and retries', () => {
     const onNavigate = jest.fn();
     renderWithApp(<PracticeScreen onNavigate={onNavigate} />, makeServices());

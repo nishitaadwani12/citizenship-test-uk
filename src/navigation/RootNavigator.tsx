@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, BackHandler, View } from 'react-native';
 import { useApp } from '../app/AppContext';
 import { colors, styles } from '../app/theme';
 import { DISCLAIMER, PRIVACY_POLICY, TERMS_OF_SERVICE } from '../content/legal';
@@ -18,6 +18,20 @@ import { MainRoute } from './routes';
 export function RootNavigator(): React.JSX.Element {
   const { loading, user } = useApp();
   const [route, setRoute] = useState<MainRoute>('Home');
+
+  // Android hardware back: return to Home from any sub-screen; from Home let the
+  // system handle it (exit the app).
+  useEffect(() => {
+    const onBack = () => {
+      if (route !== 'Home') {
+        setRoute('Home');
+        return true;
+      }
+      return false;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBack);
+    return () => sub.remove();
+  }, [route]);
 
   if (loading) {
     return (

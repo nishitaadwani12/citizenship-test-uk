@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useApp } from '../app/AppContext';
-import { pressUpsell } from '../app/press';
+import { pressFade, pressUpsell } from '../app/press';
 import { styles } from '../app/theme';
 import { QuizRunner } from '../components/QuizRunner';
 import { ResultsView } from '../components/ResultsView';
@@ -50,6 +50,9 @@ export function MockExamScreen({ onNavigate }: MockExamScreenProps): React.JSX.E
 
   return (
     <View style={styles.screen}>
+      <Pressable testID="exam-back" style={pressFade} onPress={() => onNavigate('Home')}>
+        <Text style={styles.backLink}>‹ Home</Text>
+      </Pressable>
       {isPremium ? null : (
         <Pressable
           testID="exam-upsell"

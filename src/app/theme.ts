@@ -233,6 +233,14 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
+  backLink: {
+    color: colors.primary,
+    fontSize: 16,
+    fontWeight: '700',
+    paddingVertical: 6,
+    marginBottom: 4,
+    cursor: 'pointer',
+  },
   footer: {
     marginTop: 24,
     paddingTop: 16,
