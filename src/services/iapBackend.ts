@@ -1,23 +1,7 @@
 import * as RNIap from 'react-native-iap';
+import { IapBackend } from './iapTypes';
 
-/** A subscription product as surfaced to the UI. */
-export interface IapProduct {
-  productId: string;
-  title: string;
-  description: string;
-  price: string;
-}
-
-/** The store operations the app needs for subscriptions. Implemented for real
- *  by the react-native-iap adapter below and faked in unit tests. */
-export interface IapBackend {
-  init(): Promise<void>;
-  getSubscriptions(productIds: string[]): Promise<IapProduct[]>;
-  purchaseSubscription(productId: string): Promise<void>;
-  /** Product ids the user currently owns / has an active subscription for. */
-  getOwnedProductIds(): Promise<string[]>;
-  end(): Promise<void>;
-}
+export type { IapBackend, IapProduct } from './iapTypes';
 
 /** Typed facade over the subset of react-native-iap we use. The library's own
  *  types shift between versions, so we pin to this narrow shape and cast once. */

@@ -11,6 +11,8 @@ module.exports = {
     '!src/**/index.ts',
     '!src/**/types.ts',
     '!src/services/auth/gateway.ts',
+    '!src/services/iapTypes.ts',
+    '!src/services/iapBackend.web.ts',
     '!src/navigation/**',
     '!src/testkit.tsx',
     '!src/services/auth/authWiring.ts',
