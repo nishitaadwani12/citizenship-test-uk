@@ -1,6 +1,7 @@
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useApp } from '../app/AppContext';
+import { pressBtn, pressCard } from '../app/press';
 import { styles } from '../app/theme';
 import { AdBanner } from '../components/AdBanner';
 import { displayIdentity } from '../services/auth/model';
@@ -27,29 +28,29 @@ export function HomeScreen({ onNavigate }: HomeScreenProps): React.JSX.Element {
   const { user, isPremium } = useApp();
 
   return (
-    <ScrollView style={styles.screen}>
+    <ScrollView style={styles.screen} contentContainerStyle={{ paddingBottom: 24 }}>
       <Text style={styles.title}>Hi, {displayIdentity(user)}</Text>
       <Text style={styles.subtitle} testID="premium-status">
         {isPremium ? 'Premium unlocked — full access' : 'Free plan'}
       </Text>
       {TILES.map((tile) => (
-        <TouchableOpacity
+        <Pressable
           key={tile.route}
           testID={`tile-${tile.route}`}
-          style={styles.card}
+          style={pressCard}
           onPress={() => onNavigate(tile.route)}
         >
           <Text style={styles.prompt}>{tile.label}</Text>
-        </TouchableOpacity>
+        </Pressable>
       ))}
       {isPremium ? null : (
-        <TouchableOpacity
+        <Pressable
           testID="tile-Paywall"
-          style={styles.button}
+          style={pressBtn}
           onPress={() => onNavigate('Paywall')}
         >
           <Text style={styles.buttonText}>Unlock full access</Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
       <View />
       <AdBanner />

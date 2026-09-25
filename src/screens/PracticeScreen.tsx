@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useApp } from '../app/AppContext';
+import { pressUpsell } from '../app/press';
 import { styles } from '../app/theme';
 import { QuizRunner } from '../components/QuizRunner';
 import { ResultsView } from '../components/ResultsView';
@@ -38,11 +39,15 @@ export function PracticeScreen({ onNavigate }: PracticeScreenProps): React.JSX.E
   return (
     <View style={styles.screen}>
       {isPremium ? null : (
-        <TouchableOpacity testID="practice-upsell" onPress={() => onNavigate('Paywall')}>
-          <Text style={styles.label}>
+        <Pressable
+          testID="practice-upsell"
+          style={pressUpsell}
+          onPress={() => onNavigate('Paywall')}
+        >
+          <Text style={styles.upsellText}>
             Free plan: {questions.length} questions. Go Premium to unlock them all →
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
       <QuizRunner key={runKey} questions={questions} mode="practice" onFinish={setResult} />
     </View>

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Pressable, ScrollView, Text } from 'react-native';
 import { useApp } from '../app/AppContext';
+import { pressBusyBtn, pressFade } from '../app/press';
 import { styles } from '../app/theme';
+
+const link = pressFade;
 import { UK_QUESTIONS } from '../core/questionBank';
 import { tierCounts } from '../core/access';
 import { IapProduct } from '../services/iapBackend';
@@ -93,10 +96,10 @@ export function PaywallScreen({ onNavigate }: PaywallScreenProps): React.JSX.Ele
       ) : null}
 
       {SUBSCRIPTION_PLANS.map((plan) => (
-        <TouchableOpacity
+        <Pressable
           key={plan.productId}
           testID={`plan-${plan.productId}`}
-          style={[styles.button, busy ? styles.buttonDisabled : null]}
+          style={pressBusyBtn(busy)}
           disabled={busy}
           onPress={() => subscribe(plan.productId)}
         >
@@ -104,7 +107,7 @@ export function PaywallScreen({ onNavigate }: PaywallScreenProps): React.JSX.Ele
             {plan.title} — {priceFor(plan.productId, plan.fallbackPrice)} {plan.period}
             {plan.note ? ` · ${plan.note}` : ''}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       ))}
 
       <Text style={styles.label} testID="paywall-terms">
@@ -112,18 +115,18 @@ export function PaywallScreen({ onNavigate }: PaywallScreenProps): React.JSX.Ele
         least 24 hours before renewal. Payment is charged to your Apple or Google account.
       </Text>
 
-      <TouchableOpacity testID="restore-button" disabled={busy} onPress={restore}>
+      <Pressable testID="restore-button" disabled={busy} onPress={restore} style={link}>
         <Text style={styles.secondaryText}>Restore purchase</Text>
-      </TouchableOpacity>
-      <TouchableOpacity testID="paywall-terms-link" onPress={() => onNavigate('Terms')}>
+      </Pressable>
+      <Pressable testID="paywall-terms-link" onPress={() => onNavigate('Terms')} style={link}>
         <Text style={styles.secondaryText}>Terms of Service</Text>
-      </TouchableOpacity>
-      <TouchableOpacity testID="paywall-privacy-link" onPress={() => onNavigate('Privacy')}>
+      </Pressable>
+      <Pressable testID="paywall-privacy-link" onPress={() => onNavigate('Privacy')} style={link}>
         <Text style={styles.secondaryText}>Privacy Policy</Text>
-      </TouchableOpacity>
-      <TouchableOpacity testID="paywall-home" onPress={() => onNavigate('Home')}>
+      </Pressable>
+      <Pressable testID="paywall-home" onPress={() => onNavigate('Home')} style={link}>
         <Text style={styles.secondaryText}>Not now</Text>
-      </TouchableOpacity>
+      </Pressable>
     </ScrollView>
   );
 }

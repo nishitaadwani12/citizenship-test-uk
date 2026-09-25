@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useApp } from '../app/AppContext';
-import { styles } from '../app/theme';
+import { pressBusyBtn, pressFade } from '../app/press';
+import { colors, styles } from '../app/theme';
 import { PhoneVerification } from '../services/auth/model';
 
 type Mode = 'email' | 'phone';
@@ -42,8 +43,11 @@ export function AuthScreen(): React.JSX.Element {
     }
   }
 
+  const btnStyle = pressBusyBtn(busy);
+  const linkStyle = pressFade;
+
   return (
-    <ScrollView style={styles.screen}>
+    <ScrollView style={styles.screen} contentContainerStyle={{ paddingBottom: 32 }}>
       <Text style={styles.title}>Life in the UK Test</Text>
       <Text style={styles.subtitle}>Sign in or create an account</Text>
 
@@ -53,30 +57,35 @@ export function AuthScreen(): React.JSX.Element {
         </Text>
       ) : null}
 
-      <TouchableOpacity
-        testID="google-button"
-        style={[styles.button, busy ? styles.buttonDisabled : null]}
-        disabled={busy}
-        onPress={() => run(signInWithGoogle)}
-      >
+      <Pressable testID="google-button" style={btnStyle} disabled={busy} onPress={() => run(signInWithGoogle)}>
         <Text style={styles.buttonText}>Continue with Google</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        testID="apple-button"
-        style={[styles.button, busy ? styles.buttonDisabled : null]}
-        disabled={busy}
-        onPress={() => run(signInWithApple)}
-      >
+      </Pressable>
+      <Pressable testID="apple-button" style={btnStyle} disabled={busy} onPress={() => run(signInWithApple)}>
         <Text style={styles.buttonText}>Continue with Apple</Text>
-      </TouchableOpacity>
+      </Pressable>
 
-      <View style={{ height: 12 }} />
-      <TouchableOpacity testID="mode-email" onPress={() => setMode('email')}>
-        <Text style={mode === 'email' ? styles.prompt : styles.label}>Email</Text>
-      </TouchableOpacity>
-      <TouchableOpacity testID="mode-phone" onPress={() => setMode('phone')}>
-        <Text style={mode === 'phone' ? styles.prompt : styles.label}>Phone number</Text>
-      </TouchableOpacity>
+      <View style={styles.divider}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>or</Text>
+        <View style={styles.dividerLine} />
+      </View>
+
+      <View style={styles.tabs}>
+        <Pressable
+          testID="mode-email"
+          style={[styles.tab, mode === 'email' && styles.tabActive]}
+          onPress={() => setMode('email')}
+        >
+          <Text style={mode === 'email' ? styles.tabTextActive : styles.tabText}>Email</Text>
+        </Pressable>
+        <Pressable
+          testID="mode-phone"
+          style={[styles.tab, mode === 'phone' && styles.tabActive]}
+          onPress={() => setMode('phone')}
+        >
+          <Text style={mode === 'phone' ? styles.tabTextActive : styles.tabText}>Phone</Text>
+        </Pressable>
+      </View>
 
       {mode === 'email' ? (
         <View>
@@ -84,6 +93,8 @@ export function AuthScreen(): React.JSX.Element {
           <TextInput
             testID="email-input"
             style={styles.input}
+            placeholder="you@example.com"
+            placeholderTextColor={colors.muted}
             autoCapitalize="none"
             keyboardType="email-address"
             value={email}
@@ -93,13 +104,15 @@ export function AuthScreen(): React.JSX.Element {
           <TextInput
             testID="password-input"
             style={styles.input}
+            placeholder="At least 6 characters"
+            placeholderTextColor={colors.muted}
             secureTextEntry
             value={password}
             onChangeText={setPassword}
           />
-          <TouchableOpacity
+          <Pressable
             testID="submit-button"
-            style={[styles.button, busy ? styles.buttonDisabled : null]}
+            style={btnStyle}
             disabled={busy}
             onPress={() =>
               run(() =>
@@ -108,9 +121,10 @@ export function AuthScreen(): React.JSX.Element {
             }
           >
             <Text style={styles.buttonText}>{isSignup ? 'Sign up' : 'Log in'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             testID="toggle-mode"
+            style={linkStyle}
             onPress={() => {
               setIsSignup(!isSignup);
               setError('');
@@ -119,7 +133,7 @@ export function AuthScreen(): React.JSX.Element {
             <Text style={styles.secondaryText}>
               {isSignup ? 'Already have an account? Log in' : 'New here? Create an account'}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       ) : (
         <View>
@@ -127,6 +141,8 @@ export function AuthScreen(): React.JSX.Element {
           <TextInput
             testID="phone-input"
             style={styles.input}
+            placeholder="+447700900123"
+            placeholderTextColor={colors.muted}
             keyboardType="phone-pad"
             value={phone}
             onChangeText={setPhone}
@@ -137,23 +153,25 @@ export function AuthScreen(): React.JSX.Element {
               <TextInput
                 testID="code-input"
                 style={styles.input}
+                placeholder="6-digit code"
+                placeholderTextColor={colors.muted}
                 keyboardType="number-pad"
                 value={code}
                 onChangeText={setCode}
               />
-              <TouchableOpacity
+              <Pressable
                 testID="confirm-code-button"
-                style={[styles.button, busy ? styles.buttonDisabled : null]}
+                style={btnStyle}
                 disabled={busy}
                 onPress={() => run(() => confirmPhone(verification, code))}
               >
                 <Text style={styles.buttonText}>Verify and continue</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           ) : (
-            <TouchableOpacity
+            <Pressable
               testID="send-code-button"
-              style={[styles.button, busy ? styles.buttonDisabled : null]}
+              style={btnStyle}
               disabled={busy}
               onPress={() =>
                 run(async () => {
@@ -162,7 +180,7 @@ export function AuthScreen(): React.JSX.Element {
               }
             >
               <Text style={styles.buttonText}>Send code</Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
       )}

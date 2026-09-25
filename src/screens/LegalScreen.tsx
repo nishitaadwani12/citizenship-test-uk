@@ -1,5 +1,6 @@
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Pressable, ScrollView, Text } from 'react-native';
+import { pressFade } from '../app/press';
 import { styles } from '../app/theme';
 import { LegalDocument } from '../content/legal';
 import { MainRoute } from '../navigation/routes';
@@ -22,9 +23,9 @@ export function LegalScreen({ document, onNavigate }: LegalScreenProps): React.J
           {`\n${paragraph}`}
         </Text>
       ))}
-      <TouchableOpacity testID="legal-back" onPress={() => onNavigate('Settings')}>
+      <Pressable testID="legal-back" style={pressFade} onPress={() => onNavigate('Settings')}>
         <Text style={styles.secondaryText}>Back</Text>
-      </TouchableOpacity>
+      </Pressable>
     </ScrollView>
   );
 }

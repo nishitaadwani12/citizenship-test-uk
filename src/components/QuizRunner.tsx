@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { pressAdvanceBtn, pressBtn, pressOption } from '../app/press';
 import { styles } from '../app/theme';
 import {
   answerCurrent,
@@ -89,28 +90,28 @@ export function QuizRunner({ questions, mode, onFinish }: QuizRunnerProps): Reac
       <Text style={styles.prompt}>{question.prompt}</Text>
       {isMulti ? <Text style={styles.label}>Select all that apply</Text> : null}
       {question.options.map((option, index) => (
-        <TouchableOpacity
+        <Pressable
           key={option}
           testID={`option-${index}`}
-          style={optionStyle(index)}
+          style={pressOption(optionStyle(index), checked)}
           onPress={() => toggleOption(index)}
         >
           <Text style={styles.optionText}>{option}</Text>
-        </TouchableOpacity>
+        </Pressable>
       ))}
       {canCheck ? (
-        <TouchableOpacity style={styles.button} testID="check-button" onPress={() => setChecked(true)}>
+        <Pressable style={pressBtn} testID="check-button" onPress={() => setChecked(true)}>
           <Text style={styles.buttonText}>Check answer</Text>
-        </TouchableOpacity>
+        </Pressable>
       ) : null}
-      <TouchableOpacity
-        style={[styles.button, canAdvance ? null : styles.buttonDisabled]}
+      <Pressable
+        style={pressAdvanceBtn(canAdvance)}
         testID="advance-button"
         disabled={!canAdvance}
         onPress={advance}
       >
         <Text style={styles.buttonText}>{isLast ? 'Finish' : 'Next'}</Text>
-      </TouchableOpacity>
+      </Pressable>
     </ScrollView>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { pressFade } from '../app/press';
 import { styles } from '../app/theme';
 import { MainRoute } from '../navigation/routes';
 
@@ -37,14 +38,14 @@ export function HandbookScreen({ onNavigate }: HandbookScreenProps): React.JSX.E
     <ScrollView style={styles.screen}>
       <Text style={styles.title}>Study handbook</Text>
       {SECTIONS.map((section) => (
-        <TouchableOpacity key={section.heading} style={styles.card} activeOpacity={1}>
+        <View key={section.heading} style={styles.card}>
           <Text style={styles.prompt}>{section.heading}</Text>
           <Text style={styles.optionText}>{section.body}</Text>
-        </TouchableOpacity>
+        </View>
       ))}
-      <TouchableOpacity testID="handbook-home" onPress={() => onNavigate('Home')}>
+      <Pressable testID="handbook-home" style={pressFade} onPress={() => onNavigate('Home')}>
         <Text style={styles.secondaryText}>Back to home</Text>
-      </TouchableOpacity>
+      </Pressable>
     </ScrollView>
   );
 }

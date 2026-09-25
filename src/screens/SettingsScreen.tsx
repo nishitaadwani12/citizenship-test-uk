@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Pressable, ScrollView, Text } from 'react-native';
 import { useApp } from '../app/AppContext';
+import { pressBtn, pressCard, pressDanger, pressFade } from '../app/press';
 import { styles } from '../app/theme';
 import { displayIdentity } from '../services/auth/model';
 import { MainRoute } from '../navigation/routes';
@@ -49,43 +50,40 @@ export function SettingsScreen({ onNavigate }: SettingsScreenProps): React.JSX.E
       ) : null}
 
       {isPremium ? null : (
-        <TouchableOpacity testID="settings-upgrade" style={styles.button} onPress={() => onNavigate('Paywall')}>
+        <Pressable testID="settings-upgrade" style={pressBtn} onPress={() => onNavigate('Paywall')}>
           <Text style={styles.buttonText}>Go Premium</Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
-      <TouchableOpacity testID="settings-restore" style={styles.card} onPress={restore}>
+      <Pressable testID="settings-restore" style={pressCard} onPress={restore}>
         <Text style={styles.prompt}>Restore purchase</Text>
-      </TouchableOpacity>
+      </Pressable>
 
-      {LEGAL_LINKS.map((link) => (
-        <TouchableOpacity
-          key={link.route}
-          testID={`settings-link-${link.route}`}
-          onPress={() => onNavigate(link.route)}
+      {LEGAL_LINKS.map((item) => (
+        <Pressable
+          key={item.route}
+          testID={`settings-link-${item.route}`}
+          style={pressFade}
+          onPress={() => onNavigate(item.route)}
         >
-          <Text style={styles.secondaryText}>{link.label}</Text>
-        </TouchableOpacity>
+          <Text style={styles.secondaryText}>{item.label}</Text>
+        </Pressable>
       ))}
 
-      <TouchableOpacity testID="settings-home" onPress={() => onNavigate('Home')}>
+      <Pressable testID="settings-home" style={pressFade} onPress={() => onNavigate('Home')}>
         <Text style={styles.secondaryText}>Back to home</Text>
-      </TouchableOpacity>
-      <TouchableOpacity testID="settings-logout" style={styles.button} onPress={logout}>
+      </Pressable>
+      <Pressable testID="settings-logout" style={pressBtn} onPress={logout}>
         <Text style={styles.buttonText}>Log out</Text>
-      </TouchableOpacity>
+      </Pressable>
 
       {confirmingDelete ? (
-        <TouchableOpacity
-          testID="settings-delete-confirm"
-          style={[styles.button, styles.buttonDisabled]}
-          onPress={deleteAccount}
-        >
+        <Pressable testID="settings-delete-confirm" style={pressDanger} onPress={deleteAccount}>
           <Text style={styles.buttonText}>Tap again to permanently delete your account</Text>
-        </TouchableOpacity>
+        </Pressable>
       ) : (
-        <TouchableOpacity testID="settings-delete" onPress={() => setConfirmingDelete(true)}>
+        <Pressable testID="settings-delete" style={pressFade} onPress={() => setConfirmingDelete(true)}>
           <Text style={styles.secondaryText}>Delete account</Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
     </ScrollView>
   );
